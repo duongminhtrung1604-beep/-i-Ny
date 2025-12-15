@@ -36,6 +36,11 @@ local HealthBarEnabled = true
 local MaxDistance = 10000
 local UpdateInterval = 0.35 -- update health & billboard
 
+-- ====== RGB Settings ======
+local RGBEnabled = true     -- bật/tắt hiệu ứng RGB
+local RGBSpeed = 0.25       -- tốc độ thay đổi hue (hue per second)
+local hue = 0               -- giá trị hue hiện tại (0..1)
+
 -- ====== Functions ======
 local function removeESP(player)
     if ESPObjects[player] then
@@ -64,7 +69,7 @@ local function createESP(player, character)
     local textLabel = Instance.new("TextLabel")
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = Color3.new(255,182,193)
+    textLabel.TextColor3 = Color3.fromRGB(255,182,193)
     textLabel.Font = Enum.Font.SourceSansBold
     textLabel.TextSize = 14
     textLabel.Text = player.Name
@@ -82,7 +87,7 @@ local function createESP(player, character)
 
         healthBar = Instance.new("Frame", healthBarBg)
         healthBar.Size = UDim2.new(1,0,1,0)
-        healthBar.BackgroundColor3 = Color3.fromRGB(57,255,20)
+        healthBar.BackgroundColor3 = Color3.fromRGB(255,182,193)
         healthBar.BorderSizePixel = 0
 
         humanoid:GetPropertyChangedSignal("Health"):Connect(function()
@@ -99,7 +104,7 @@ local function createESP(player, character)
     local highlight = Instance.new("Highlight")
     highlight.FillTransparency = 1
     highlight.OutlineTransparency = 0
-    highlight.OutlineColor = Color3.fromRGB(152,251,152)
+    highlight.OutlineColor = Color3.fromRGB(255,182,193)
     highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Adornee = character
     highlight.Parent = character
@@ -107,7 +112,7 @@ local function createESP(player, character)
     -- Tracer
     local tracer = Drawing.new("Line")
     tracer.Visible = false
-    tracer.Color = Color3.fromRGB(255,255,255)
+    tracer.Color = Color3.fromRGB(255,182,193)
     tracer.Thickness = 1
     tracer.Transparency = 0.8
 
@@ -161,8 +166,14 @@ task.spawn(function()
     end
 end)
 
--- ====== Update Tracer ======
-RunService.RenderStepped:Connect(function()
+-- ====== Update Tracer (và RGB Billboard) ======
+RunService.RenderStepped:Connect(function(dt)
+    -- cập nhật hue nếu bật RGB
+    if RGBEnabled then
+        hue = (hue + RGBSpeed * dt) % 1
+    end
+    local currentColor = Color3.fromHSV(hue, 1, 1)
+
     local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not myHRP then return end
 
@@ -171,6 +182,7 @@ RunService.RenderStepped:Connect(function()
             local dist = (myHRP.Position - obj.hrp.Position).Magnitude
             local show = ESPEnabled and TracerEnabled and dist <= MaxDistance
 
+            -- Tracer
             if show then
                 local rootPos,onScreen = Camera:WorldToViewportPoint(obj.hrp.Position)
                 local screenCenter = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
@@ -181,6 +193,26 @@ RunService.RenderStepped:Connect(function()
                 end
             else
                 obj.tracer.Visible = false
+            end
+
+            -- Áp dụng màu RGB nếu bật
+            if RGBEnabled then
+                -- Label (billboard text)
+                if obj.label then
+                    obj.label.TextColor3 = currentColor
+                end
+                -- Highlight outline
+                if obj.highlight then
+                    obj.highlight.OutlineColor = currentColor
+                end
+                -- Tracer color
+                if obj.tracer then
+                    obj.tracer.Color = currentColor
+                end
+                -- Health bar
+                if obj.healthBar then
+                    obj.healthBar.BackgroundColor3 = currentColor
+                end
             end
         end
     end
@@ -235,3 +267,22 @@ ESPTab:CreateSlider({
     CurrentValue = MaxDistance,
     Callback = function(Value) MaxDistance = Value end
 })
+
+-- ====== RGB Controls ======
+ESPTab:CreateToggle({
+    Name = "RGB Billboard",
+    CurrentValue = RGBEnabled,
+    Callback = function(Value) RGBEnabled = Value end
+})
+
+ESPTab:CreateSlider({
+    Name = "RGB Speed",
+    Range = {1, 200}, -- percent
+    Increment = 5,
+    Suffix = "%",
+    CurrentValue = math.floor(RGBSpeed * 100),
+    Callback = function(Value)
+        RGBSpeed = Value / 100
+    end
+})
+
