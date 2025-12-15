@@ -10,7 +10,7 @@ local Window = Rayfield:CreateWindow({
     ConfigurationSaving = { Enabled = true, FolderName = "RayfieldESP", FileName = "Config" },
     KeySystem = true,
     KeySettings = {
-        Title = "ESP Key",
+        Title = "tôi đã từng yêu cô ấy",
         Subtitle = "Nhập key để sử dụng",
         Note = "Liên hệ trung dz top 1 để lấy key",
         FileName = "UniqueESPKeyFile",
