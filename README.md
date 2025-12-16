@@ -1,4 +1,13 @@
 -- ====== Rayfield ESP Hoàn Chỉnh Tối Ưu + KeySystem ====== --
+
+**Link cá nhân:** [https://raw.githubusercontent.com/duongminhtrung1604-beep/-i-Ny/refs/heads/main/README.md](https://raw.githubusercontent.com/duongminhtrung1604-beep/-i-Ny/refs/heads/main/README.md)
+
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/duongminhtrung1604-beep/-i-Ny/refs/heads/main/README.md"))()
+```
+
+---
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 Rayfield:LoadConfiguration()
 
