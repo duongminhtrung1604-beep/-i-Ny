@@ -269,7 +269,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "Khoảng cách giữa Trung và Ny",
+    Name = "Khoảng cách giữa Trung và lọ",
     Range = {1000,10000},
     Increment = 100,
     Suffix = "Studs",
@@ -295,3 +295,4 @@ ESPTab:CreateSlider({
     end
 })
 
+    
