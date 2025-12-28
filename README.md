@@ -261,7 +261,7 @@ ESPTab:CreateToggle({
 
 ESPTab:CreateSlider({
     Name = "Khoảng cách giữa Trung và Ny",
-    Range = {1000,100000},
+    Range = {1000,10000},
     Increment = 100,
     Suffix = "Studs",
     CurrentValue = MaxDistance,
@@ -270,7 +270,7 @@ ESPTab:CreateSlider({
 
 -- ====== RGB Controls ======
 ESPTab:CreateToggle({
-    Name = "RGB Billboard",
+    Name = "bật/tắt xe lăn 7 màu",
     CurrentValue = RGBEnabled,
     Callback = function(Value) RGBEnabled = Value end
 })
