@@ -104,7 +104,7 @@ local function createESP(player, character)
     local highlight = Instance.new("Highlight")
     highlight.FillTransparency = 1
     highlight.OutlineTransparency = 0
-    highlight.OutlineColor = Color3.fromRGB(255,182,193)
+    highlight.OutlineColor = Color3.fromRGB(199,21,133)
     highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Adornee = character
     highlight.Parent = character
@@ -112,7 +112,7 @@ local function createESP(player, character)
     -- Tracer
     local tracer = Drawing.new("Line")
     tracer.Visible = false
-    tracer.Color = Color3.fromRGB(255,182,193)
+    tracer.Color = Color3.fromRGB(199,21,133)
     tracer.Thickness = 1
     tracer.Transparency = 0.8
 
@@ -235,7 +235,7 @@ Players.PlayerRemoving:Connect(removeESP)
 
 -- ====== Rayfield Menu ======
 ESPTab:CreateToggle({
-    Name = "Bật/Tắt ESP",
+    Name = "Bật/Tắt quay tay",
     CurrentValue = ESPEnabled,
     Callback = function(Value) ESPEnabled = Value end
 })
@@ -247,7 +247,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "Hiển thị Health Bar",
+    Name = "thanh tinh trùng còn sót",
     CurrentValue = HealthBarEnabled,
     Callback = function(Value)
         HealthBarEnabled = Value
@@ -260,8 +260,8 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "Khoảng cách giữa Trung và lọ",
-    Range = {1000,10000},
+    Name = "Khoảng cách giữa Trung và Ny",
+    Range = {1000,100000},
     Increment = 100,
     Suffix = "Studs",
     CurrentValue = MaxDistance,
@@ -276,7 +276,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "RGB Speed",
+    Name = "tốc độ sục",
     Range = {1, 200}, -- percent
     Increment = 5,
     Suffix = "%",
