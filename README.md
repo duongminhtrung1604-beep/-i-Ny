@@ -1,4 +1,5 @@
 -- ====== Rayfield ESP Hoàn Chỉnh Tối Ưu + KeySystem ====== --
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 Rayfield:LoadConfiguration()
 
@@ -16,7 +17,7 @@ local Window = Rayfield:CreateWindow({
         FileName = "UniqueESPKeyFile",
         SaveKey = true,
         GrabKeyFromSite = false,
-        Key = {"dungyeungoc","baosaygexyeutran","longfemini","datgay","trungsaygex"}
+        Key = {"trungsaygex"}
     }
 })
 
@@ -41,6 +42,11 @@ local RGBEnabled = true     -- bật/tắt hiệu ứng RGB
 local RGBSpeed = 0.25       -- tốc độ thay đổi hue (hue per second)
 local hue = 0               -- giá trị hue hiện tại (0..1)
 
+-- ====== Bighead Settings ======
+local BigheadEnabled = false
+local BigheadScale = 5
+local OriginalHeadSizes = {}
+
 -- ====== Functions ======
 local function removeESP(player)
     if ESPObjects[player] then
@@ -49,6 +55,24 @@ local function removeESP(player)
         if obj.highlight then obj.highlight:Destroy() end
         if obj.tracer then obj.tracer:Remove() end
         ESPObjects[player] = nil
+    end
+end
+
+local function applyBighead(character, enabled)
+    local head = character:FindFirstChild("Head")
+    if head then
+        if enabled then
+            if not OriginalHeadSizes[head] then
+                OriginalHeadSizes[head] = head.Size
+            end
+            head.Size = OriginalHeadSizes[head] * BigheadScale
+            head.CanCollide = true
+        else
+            if OriginalHeadSizes[head] then
+                head.Size = OriginalHeadSizes[head]
+                head.CanCollide = false
+            end
+        end
     end
 end
 
@@ -104,7 +128,7 @@ local function createESP(player, character)
     local highlight = Instance.new("Highlight")
     highlight.FillTransparency = 1
     highlight.OutlineTransparency = 0
-    highlight.OutlineColor = Color3.fromRGB(199,21,133)
+    highlight.OutlineColor = Color3.fromRGB(255,182,193)
     highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Adornee = character
     highlight.Parent = character
@@ -112,7 +136,7 @@ local function createESP(player, character)
     -- Tracer
     local tracer = Drawing.new("Line")
     tracer.Visible = false
-    tracer.Color = Color3.fromRGB(199,21,133)
+    tracer.Color = Color3.fromRGB(255,182,193)
     tracer.Thickness = 1
     tracer.Transparency = 0.8
 
@@ -132,6 +156,8 @@ local function createESP(player, character)
 
     humanoid.Died:Connect(function() removeESP(player) end)
     player.CharacterRemoving:Connect(function() removeESP(player) end)
+
+    applyBighead(character, BigheadEnabled)
 end
 
 -- ====== Update ESP ======
@@ -221,21 +247,30 @@ end)
 -- ====== Setup players ======
 for _,player in ipairs(Players:GetPlayers()) do
     if player ~= LocalPlayer then
-        if player.Character then createESP(player,player.Character) end
-        player.CharacterAdded:Connect(function(char) createESP(player,char) end)
+        if player.Character then 
+            createESP(player,player.Character)
+            applyBighead(player.Character, BigheadEnabled)
+        end
+        player.CharacterAdded:Connect(function(char) 
+            createESP(player,char)
+            applyBighead(char, BigheadEnabled)
+        end)
     end
 end
 
 Players.PlayerAdded:Connect(function(player)
     if player ~= LocalPlayer then
-        player.CharacterAdded:Connect(function(char) createESP(player,char) end)
+        player.CharacterAdded:Connect(function(char) 
+            createESP(player,char)
+            applyBighead(char, BigheadEnabled)
+        end)
     end
 end)
 Players.PlayerRemoving:Connect(removeESP)
 
 -- ====== Rayfield Menu ======
 ESPTab:CreateToggle({
-    Name = "Bật/Tắt quay tay",
+    Name = "Bật/Tắt ESP",
     CurrentValue = ESPEnabled,
     Callback = function(Value) ESPEnabled = Value end
 })
@@ -247,7 +282,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "thanh tinh trùng còn sót",
+    Name = "Hiển thị Health Bar",
     CurrentValue = HealthBarEnabled,
     Callback = function(Value)
         HealthBarEnabled = Value
@@ -260,7 +295,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "Khoảng cách giữa Trung và Ny",
+    Name = "Khoảng cách giữa Trung và lọ",
     Range = {1000,10000},
     Increment = 100,
     Suffix = "Studs",
@@ -270,13 +305,13 @@ ESPTab:CreateSlider({
 
 -- ====== RGB Controls ======
 ESPTab:CreateToggle({
-    Name = "bật/tắt xe lăn 7 màu",
+    Name = "RGB Billboard",
     CurrentValue = RGBEnabled,
     Callback = function(Value) RGBEnabled = Value end
 })
 
 ESPTab:CreateSlider({
-    Name = "tốc độ sục",
+    Name = "RGB Speed",
     Range = {1, 200}, -- percent
     Increment = 5,
     Suffix = "%",
@@ -286,4 +321,37 @@ ESPTab:CreateSlider({
     end
 })
 
+-- ====== Bighead Tab ======
+local BigheadTab = Window:CreateTab("Bighead", 4483362458)
+
+BigheadTab:CreateToggle({
+    Name = "Enable Bighead",
+    CurrentValue = BigheadEnabled,
+    Callback = function(Value)
+        BigheadEnabled = Value
+        for _,player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character then
+                applyBighead(player.Character, Value)
+            end
+        end
+    end
+})
+
+BigheadTab:CreateSlider({
+    Name = "Bighead Scale",
+    Range = {1, 10},
+    Increment = 0.5,
+    Suffix = "x",
+    CurrentValue = BigheadScale,
+    Callback = function(Value)
+        BigheadScale = Value
+        if BigheadEnabled then
+            for _,player in ipairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    applyBighead(player.Character, true)
+                end
+            end
+        end
+    end
+})
     
