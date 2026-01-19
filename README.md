@@ -339,7 +339,7 @@ BigheadTab:CreateToggle({
 
 BigheadTab:CreateSlider({
     Name = "Bighead Scale",
-    Range = {1, 10},
+    Range = {2, 20},
     Increment = 0.5,
     Suffix = "x",
     CurrentValue = BigheadScale,
